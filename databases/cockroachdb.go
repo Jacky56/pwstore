@@ -12,14 +12,12 @@ type Cockroachdb[T any] struct {
 	connectionString string
 	context          context.Context
 	conn             *pgx.Conn
-	fullTableName    string
 }
 
-func NewCockroachdb[T any](connString string, fullTableName string) types.Database[T] {
+func NewCockroachdb[T any](connString string) types.Database[T] {
 	return &Cockroachdb[T]{
 		connectionString: connString,
 		context:          context.Background(),
-		fullTableName:    fullTableName,
 	}
 }
 

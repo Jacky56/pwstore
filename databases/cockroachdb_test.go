@@ -10,7 +10,7 @@ func TestCockroachdbConnectFail(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot load config!\n%s", err)
 	}
-	db := NewCockroachdb[any](config.ConnString("COCKROACH_DB"), config.TableName("COCKROACH_DB"))
+	db := NewCockroachdb[any](config.ConnString("COCKROACH_DB"))
 	_, err = db.Connect()
 	if err == nil {
 		t.Errorf("helloworld is not a real connection string")
@@ -27,7 +27,7 @@ func TestCockroachdbConnectPass(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot load config!\n%s", err)
 	}
-	db := NewCockroachdb[any](config.ConnString("COCKROACH_DB"), config.TableName("COCKROACH_DB"))
+	db := NewCockroachdb[any](config.ConnString("COCKROACH_DB"))
 	_, err = db.Connect()
 	if err != nil {
 		t.Errorf("helloworld is not a real connection string")

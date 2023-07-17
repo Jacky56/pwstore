@@ -1,0 +1,8 @@
+COCKROACH_DB:
+  USERNAME: dummy
+  PASSWORD: dummy
+  CLUSTER: dummy
+  PORT: 12345
+  DATABASE: pwstore
+  SCHEMA: test
+  TABLE_USER: user

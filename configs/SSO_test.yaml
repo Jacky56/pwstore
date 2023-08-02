@@ -1,0 +1,9 @@
+# this is for http://localhost:4000/
+google:
+  CLIENTID: google
+  SECRET: google
+  CALLBACK: http://localhost:4000/auth/google/callback
+github:
+  CLIENTID: github
+  SECRET: github
+  CALLBACK: http://localhost:4000/auth/github/callback

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% include "partials/header.html" %}
+  <body hx-ext="response-targets, multi-swap" id="">
+    {% include "partials/nav.html" %}
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+    {% block sidebar %}
+      <!-- insert default navigation text for every page -->
+    {% endblock %}
+    {% block content %}
+      <!-- default content text (typically empty) -->
+    {% endblock %}
+    <div id="embed" class="w-screen h-screen -z-50">
+      {% include "partials/alert.html"%}
+      {{embed}}
+    </div>
+    
+  </body>
+</html>

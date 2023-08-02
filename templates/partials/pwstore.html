@@ -1,0 +1,38 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div id="card-pwstore" class="flex flex-col items-center py-32">
+    <div class="w-1/2 max-w-5xl  bg-white z-50">
+
+        <div class="flex flex-col justify-center items-center bg-inherit">
+
+            <div class="absolute htmx-indicator-enable">
+                {% include "partials/elements/htmx_indicator.html" %}
+            </div>
+
+            <div class="htmx-indicator-disable w-full"> 
+                <div class="text-center mb-16">
+                    {% include "partials/elements/logo.html" %}
+                </div>
+                <form hx-push-url="/" hx-post="/updatepws" hx-indicator="#card-pwstore"  hx-target-5*="#alerts" hx-swap="multi:#alerts:beforeend,#embed:outerHTML">
+                    <div id="pwstore-table" class="grid grid-cols-3 gap-4 w-full bg-inherit">
+                        {% if pws != None %}
+                        {% for k in pws %}
+                            <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1" 
+                            type="text" name="keyword" placeholder="Keyword" value="{{ k }}"/>
+                            <input class="col-span-2 focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1" 
+                            type="text" name="value" placeholder="Passphrase" value="{{ pws[k] }}"/>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <button onclick="newPWStoreRow('pwstore-table')" id="PWSNew" class="w-full p-5 hover:opacity-60 rounded-md  text-slate-700 font-medium focus:outline-orange-500 focus:outline-1" type="button">New +</button>
+                    <div class="flex w-full items-center justify-between my-5">
+                        <button class="cursor-pointer text-gray-500 hover:opacity-70" type="reset">Reset</button>
+                        <button class="py-2 px-5 hover:opacity-70 rounded-md bg-slate-500 text-slate-100 font-medium focus:outline-orange-500 focus:outline-1" type="submit">Update</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>

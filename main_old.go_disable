@@ -1,0 +1,113 @@
+package main
+
+import (
+	"pwstore/commons"
+	"pwstore/data"
+	"pwstore/databases"
+
+	"pwstore/types"
+	"time"
+
+	jwtware "github.com/gofiber/contrib/jwt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/golang-jwt/jwt/v5"
+)
+
+var config, _ = commons.NewConfig("configs/dev.yaml")
+var db types.Database = databases.NewCockroachdb(config["COCKROACH_DB"])
+
+func main_old() {
+
+	app := fiber.New(fiber.Config{
+		PassLocalsToViews: true,
+	})
+
+	auth := jwtware.New(jwtware.Config{
+		SigningKey:   jwtware.SigningKey{Key: []byte("secret")},
+		TokenLookup:  "header:Authorization,cookie:pwstore-jwt",
+		AuthScheme:   "Bearer",
+		ErrorHandler: func(c *fiber.Ctx, e error) error { return c.SendFile("templates/404.html") },
+	})
+	unauth := jwtware.New(jwtware.Config{
+		SigningKey:     jwtware.SigningKey{Key: []byte("secret")},
+		TokenLookup:    "cookie:pwstore-jwt",
+		ErrorHandler:   func(c *fiber.Ctx, e error) error { return c.SendFile("templates/404.html") },
+		SuccessHandler: func(c *fiber.Ctx) error { return c.Redirect("/") },
+	})
+
+	app.Post("/login", login)
+
+	app.Get("/logout", func(c *fiber.Ctx) error {
+		c.ClearCookie("pwstore-jwt")
+		return c.Redirect("/")
+	})
+
+	// Unauthenticated route
+	app.Get("/", accessible)
+	app.Get("/404", unauth, func(c *fiber.Ctx) error { return c.SendFile("templates/404.html") })
+
+	app.Get("/username/:username/password/:passWord", services.WithAuthenticatedUser)
+
+	// JWT Middleware
+	// app.Use(auth)
+
+	// Restricted Routes
+	app.Get("/restricted", auth, restricted)
+
+	log.Fatal(app.Listen(":3000"))
+}
+
+func login(c *fiber.Ctx) error {
+	user := c.FormValue("username")
+	pass := c.FormValue("password")
+
+	var data data.User
+	c.BodyParser(&data)
+	log.Info(data)
+	// Throws Unauthorized error
+	if user != "john" || pass != "doe" {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	// Create the Claims
+	claims := jwt.MapClaims{
+		"name": "John Doe",
+		"data": data,
+		"exp":  time.Now().Add(time.Minute * 5).Unix(),
+	}
+
+	// Create token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:  "pwstore-jwt",
+		Value: t,
+	})
+
+	return c.JSON(fiber.Map{"token": t})
+}
+
+func accessible(c *fiber.Ctx) error {
+	log.Info(c.Cookies("pwstore-jwt"))
+	return c.SendString("Accessible")
+}
+
+func restricted(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	name := claims["name"].(string)
+	dat := claims["data"].(map[string]any)
+	u := data.User{
+		Email:    dat["email"].(string),
+		Password: dat["password"].(string),
+	}
+	log.Info(dat["username"], u)
+	return c.SendString("Welcome " + name)
+}

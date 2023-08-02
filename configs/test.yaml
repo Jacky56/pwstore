@@ -6,3 +6,4 @@ COCKROACH_DB:
   DATABASE: pwstore
   SCHEMA: test
   TABLE_USER: user
+  TABLE_PASSWORDSTORE: passwordStore

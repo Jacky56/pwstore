@@ -1,20 +1,25 @@
 package databases
 
 import (
+	"fmt"
 	"pwstore/commons"
+	"pwstore/data"
+	"pwstore/types"
 	"testing"
 )
 
-func TestCockroachdbConnectFail(t *testing.T) {
-	config, err := commons.ReadConfig("../configs/test.yaml")
+func setup(conf string) types.Database {
+	config, err := commons.NewConfig(conf)
 	if err != nil {
-		t.Errorf("cannot load config!\n%s", err)
+		fmt.Printf("cannot load config!\n%s", err)
 	}
-	db := NewCockroachdb[any](config.ConnString("COCKROACH_DB"))
+	db := NewCockroachdb(config["COCKROACH_DB"])
 	_, err = db.Connect()
-	if err == nil {
-		t.Errorf("helloworld is not a real connection string")
-	}
+	return db
+}
+
+func TestCockroachdbConnectFail(t *testing.T) {
+	db := setup("../configs/test.yaml")
 
 	conn := db.GetConn()
 	if conn != nil {
@@ -23,15 +28,7 @@ func TestCockroachdbConnectFail(t *testing.T) {
 }
 
 func TestCockroachdbConnectPass(t *testing.T) {
-	config, err := commons.ReadConfig("../configs/dev.yaml")
-	if err != nil {
-		t.Errorf("cannot load config!\n%s", err)
-	}
-	db := NewCockroachdb[any](config.ConnString("COCKROACH_DB"))
-	_, err = db.Connect()
-	if err != nil {
-		t.Errorf("helloworld is not a real connection string")
-	}
+	db := setup("../configs/dev.yaml")
 	defer db.Close()
 
 	conn := db.GetConn()
@@ -41,8 +38,85 @@ func TestCockroachdbConnectPass(t *testing.T) {
 }
 
 func TestCockroachdbQueryPass(t *testing.T) {
+	db := setup("../configs/dev.yaml")
+	config, err := commons.NewConfig("../configs/dev.yaml")
+	defer db.Close()
 
+	user, err := db.Query(
+		fmt.Sprintf("select * from %s", config["COCKROACH_DB"].GetUserTableName()),
+	)
+	if err != nil {
+		t.Errorf("cannot query user table %s", err)
+	}
+	fmt.Printf("%+v", user)
 }
-func TestCockroachdbQueryFail(t *testing.T) {
 
+func TestCockroachdbUserPass(t *testing.T) {
+	db := setup("../configs/dev.yaml")
+	defer db.Close()
+
+	user, err := db.GetUser("jackybanh1997@gmail.com")
+	if err != nil {
+		t.Errorf("cannot query user table %s", err)
+	}
+	fmt.Printf("%+v", user)
+}
+
+func TestCockroachdbPasswordsPass(t *testing.T) {
+	db := setup("../configs/dev.yaml")
+	defer db.Close()
+
+	user, err := db.GetUser("jacky@gmail.com")
+	if err != nil {
+		t.Errorf("cannot query user table %s", err)
+	}
+
+	passwordStore, err := db.GetPasswordStore(user.Uuid)
+	if err != nil {
+		t.Errorf("cannot query passwordstore table %s", err)
+	}
+	fmt.Printf("%+v", passwordStore)
+}
+
+func TestSetUser(t *testing.T) {
+	db := setup("../configs/dev.yaml")
+	defer db.Close()
+	user := data.User{
+		Email:    "foo@bar.com",
+		Password: "jacky1",
+	}
+	err := db.SetUser(&user)
+	if err != nil {
+		t.Errorf("cannot upsert\n%s", err)
+	}
+}
+
+func TestListUsers(t *testing.T) {
+	db := setup("../configs/dev.yaml")
+	defer db.Close()
+	users, err := db.ListUsers()
+	if err != nil {
+		t.Errorf("cannot get list of users\n%s", err)
+	}
+	fmt.Println(users)
+}
+
+func TestSetPasswordStore(t *testing.T) {
+	db := setup("../configs/dev.yaml")
+	defer db.Close()
+	user, _ := db.GetUser("jackybanh1997@gmail.com")
+
+	pws := data.PasswordStore{
+		Uuid: user.Uuid,
+		PasswordStore: map[string]string{
+			"hello": "world",
+			"log":   "fer",
+			"yo":    "man",
+		},
+	}
+
+	err := db.SetPasswordStore(&pws)
+	if err != nil {
+		t.Errorf("cannot set password!\n%s", err)
+	}
 }

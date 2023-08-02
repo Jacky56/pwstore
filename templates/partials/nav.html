@@ -1,0 +1,56 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<div id="card-nav" class="fixed h-full w-40 bg-gradient-to-r from-slate-200">
+    <div class="grid grid-cols-1 place-content-between h-full p-10 text-lg text-center">
+        <ul>
+            <li class="h-10">
+                <div class="flex h-full items-center">
+                    <a href="/" class="cursor-pointer hover:opacity-70">Home</a>
+                </div>
+            </li>
+
+            {% if user %}
+            <div class="flex h-full items-center">
+                <p>Hello {{ user.Email }}</p>
+            </div>
+            {% else %}
+            <li class="h-10">
+                <div class="flex h-full items-center">
+                    <a hx-push-url="true" hx-get="/login" hx-target="body" hx-swap="outerHTML" hx-indicator="TODO" class="cursor-pointer text-gray-700 hover:opacity-70">Log in</a>
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+
+        <ul>
+            <li class="h-10">
+                <div class="flex h-full items-center">
+                    <a>About</a>
+                </div>
+            </li>
+            <li class="h-10">
+                <div class="flex h-full items-center justify-between">
+
+                    <a href="https://www.w3schools.com" target="_blank"  class="cursor-pointer hover:opacity-70">
+                        <img class="h-8" src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg">
+                    </a>
+
+                    <a href="https://www.w3schools.com" target="_blank" class="cursor-pointer hover:opacity-70">
+                        <img class="h-8" src="https://cdn-icons-png.flaticon.com/512/145/145807.png?w=826&t=st=1690659439~exp=1690660039~hmac=4c1fc38a9634e5426d7df98c5d30f796cd69a94de813b6417eb9308f0ddc1a89">
+                    </a>
+         
+                </div>
+            </li>
+            <li class="h-10">
+                {% if user %}
+                <div class="flex h-full items-center">
+                    <a hx-push-url="true" hx-get="/logout" hx-target="body" hx-swap="outerHTML" hx-indicator="TODO" class="cursor-pointer text-gray-700 hover:opacity-70">Log out</a>
+                </div>
+                {% endif %}
+            </li>
+        </ul>
+        
+    </div>
+
+</div>

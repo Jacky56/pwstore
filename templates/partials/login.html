@@ -1,5 +1,3 @@
-<script src="https://cdn.tailwindcss.com"></script>
-
 <div id="card-auth" class="flex flex-col items-center justify-center h-screen">
     <div class="flex flex-col justify-center items-center bg-inherit w-80 outline outline-1 outline-gray-300 p-10 shadow-md rounded-sm bg-white z-50">
         
@@ -13,9 +11,9 @@
             </div>
             <h1 class="text-center py-2 text-sm">Log in</h1>
             <form hx-push-url="/" class="my-5" hx-post="/auth" hx-indicator="#card-auth" hx-target-4*="#alerts" hx-swap="multi:#alerts:beforeend,#embed:outerHTML">
-                <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2" 
+                <input required class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2" 
                 type="email" name="email" placeholder="Email"/>
-                <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full mt-2"
+                <input required class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full mt-2"
                 type="password" name="password" placeholder="Password"/>
                 <a hx-push-url="/reset_password" hx-get="/partials/reset_password" hx-target="#card-auth" hx-swap="outerHTML" hx-indicator="TODO" class="cursor-pointer text-xs text-gray-400 hover:opacity-70">Forgot password?</a>
                 <div class="flex items-center justify-between my-5">

@@ -14,6 +14,7 @@ Framework:
 
 Services:
 - Cockroachdb: PSQL
+  - https://cockroachlabs.cloud/cluster/500fd670-179e-4cd5-a528-5d4da6ed3b5c/overview?cluster-type=serverless
 - GCP: cloud run
 - GCP: Artifact Registry
   - europe-north1-docker.pkg.dev/pwstore/pwstore/pwstore:latest

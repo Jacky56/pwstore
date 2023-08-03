@@ -78,7 +78,7 @@ func NewSSOConfig(file string) (SSOConfig, error) {
 func (s *SSOConfig) InitProviders() {
 	goth.UseProviders(
 		google.New((*s)["google"].ClientID, (*s)["google"].Secret, (*s)["google"].Callback, "email", "profile"),
-		github.New((*s)["github"].ClientID, (*s)["github"].Secret, (*s)["github"].Callback, "email"),
+		github.New((*s)["github"].ClientID, (*s)["github"].Secret, (*s)["github"].Callback, "user:email"),
 		linkedin.New((*s)["linkedin"].ClientID, (*s)["linkedin"].Secret, (*s)["linkedin"].Callback),
 	)
 }

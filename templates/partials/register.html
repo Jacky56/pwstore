@@ -12,15 +12,15 @@
                 {% include "partials/elements/logo.html" %}
             </div>
             <h1 class="text-center py-2 text-sm">Sign up</h1>
-            <form class="my-5" hx-push-url="/register" hx-post="/register" hx-indicator="#card-auth">
-                <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2" 
+            <form class="my-5" hx-push-url="/register" hx-post="/register" hx-indicator="#card-auth" hx-target-5*="#alerts" hx-swap="multi:#alerts:beforeend,#embed:outerHTML">
+                <input required class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2" 
                 type="email" name="email" placeholder="Email"/>
-                <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2" 
-                type="email" name="emailComfirm" placeholder="Comfirm Email"/>
-                <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2"
+                <input required class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2" 
+                type="email" name="emailConfirm" placeholder="Comfirm Email"/>
+                <input required class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2"
                 type="password" name="password" placeholder="Password"/>
-                <input class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2"
-                type="password" name="passwordComfirm" placeholder="Comfirm Password"/>
+                <input required class="focus:outline-orange-500 focus:outline-2 text-base rounded-sm py-1 px-2 outline-gray-300 outline outline-1 w-full my-2"
+                type="password" name="passwordConfirm" placeholder="Comfirm Password"/>
                 <div class="flex items-center justify-between my-5">
                     <a hx-push-url="/login" hx-get="/partials/login" hx-target="#card-auth" hx-swap="outerHTML" hx-indicator="TODO"
                         class="cursor-pointer text text-gray-400 hover:opacity-70">Log In</a>

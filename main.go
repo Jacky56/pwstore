@@ -1,22 +1,25 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"pwstore/commons"
-	"pwstore/data"
 	"pwstore/databases"
 	"pwstore/handlers"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/shareed2k/goth_fiber"
 )
 
 func main() {
-
-	config, _ := commons.NewConfig("./configs/dev.yaml")
-	sso, _ := commons.NewSSOConfig("./configs/SSO_dev.yaml")
+	env := flag.String("env", "dev", "Which configs to use, default: dev")
+	port := flag.String("port", "8080", "Which configs to use, default: 8080")
+	flag.Parse()
+	fmt.Printf("env: %s, port: %s", *env, *port)
+	config, _ := commons.NewConfig(fmt.Sprintf("./configs/%s.yaml", *env))
+	sso, _ := commons.NewSSOConfig(fmt.Sprintf("./configs/SSO_%s.yaml", *env))
 	db := databases.NewCockroachdb(config["COCKROACH_DB"])
 	sso.InitProviders()
 
@@ -35,7 +38,7 @@ func main() {
 	app.Get("/", auth.GetSignedToken, template.Index)
 
 	app.Get("/register", auth.AuthDeny, template.Register)
-	app.Post("/register", auth.AuthDeny, auth.CreateUser)
+	app.Post("/register", auth.AuthDeny, template.Wait, auth.CreateUser, auth.Auth)
 	app.Get("/login", auth.AuthDeny, template.Login)
 	app.Get("/logout", auth.Logout)
 	app.Get("/partials/:partial", template.Partial)
@@ -44,23 +47,8 @@ func main() {
 	app.Get("/auth/:provider/callback", auth.AuthSSO)
 	app.Post("/auth", auth.AuthDeny, template.Wait, auth.Auth)
 
-	// app.Post("/register", auth.AuthDeny, auth.EmailCreateUserJWTLink)
-
-	// app.Get("/register/:token", auth.AuthDeny, auth.CreateUserJWT)
-
-	// app.Get("/login", auth.AuthDeny, auth.Login)
-
 	app.Get("/restricted", auth.AuthAllow, template.Restricted)
 	app.Post("/updatepws", auth.AuthAllow, auth.GetSignedToken, template.Wait, pwstore.UpdatePw)
 
-	log.Fatal(app.Listen(":4000"))
-}
-
-func restricted(c *fiber.Ctx) error {
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	u := data.User{
-		Email: claims["email"].(string),
-	}
-	return c.SendString("Welcome " + u.Email)
+	log.Fatal(app.Listen(fmt.Sprintf(":%s", *port)))
 }

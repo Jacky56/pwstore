@@ -1,19 +1,21 @@
 # pwstore
-a bad project for storing pws
+a bad project for storing pws (please use with caution!)
 
-## Folder structure
+url:
+- https://pwstore-ydrkzrffeq-lz.a.run.app/
 
-```text
-pwstore/
-├─ commons/
-├─ configs/
-├─ databases/
-├─ services/
-├─ templates/
-├─ types/
-├─ Dockerfile
-├─ README.md
-├─ go.mod
-├─ go.sum
-├─ main.go
-```
+## Tech stack
+
+Framework:
+- [Gofiber](https://gofiber.io/)
+- [Goth](https://github.com/markbates/goth)
+- [Tailwindcss](https://tailwindcss.com/)
+- [HTMX](https://htmx.org/)
+
+Services:
+- Cockroachdb: PSQL
+- GCP: cloud run
+- GCP: Artifact Registry
+  - europe-north1-docker.pkg.dev/pwstore/pwstore/pwstore:latest
+- AWS: SES
+

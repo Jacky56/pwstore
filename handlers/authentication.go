@@ -112,6 +112,7 @@ func (a *Authentication) Auth(c *fiber.Ctx) error {
 		Value: t,
 	})
 	c.Redirect("/")
+	c.Set("HX-Refresh", "true")
 	return c.JSON(fiber.Map{"token": t})
 }
 
@@ -120,7 +121,7 @@ func (a *Authentication) AuthSSO(c *fiber.Ctx) error {
 
 	log.Info(gothUser.Email)
 	if err != nil {
-		log.Info(err)
+		log.Error(err)
 	}
 	if len(gothUser.Email) == 0 {
 		log.Warn("Email does not exist for SSO")
@@ -173,34 +174,82 @@ func (a *Authentication) AuthSSO(c *fiber.Ctx) error {
 func (a *Authentication) createUserMethod(u *data.User) (string, error) {
 	users, err := (*a.db).ListUsers()
 	if err != nil {
-		log.Warn("cannot get list of users when creating account!", err)
-		return "cannot get list of users when creating account!", err
+		s := "cannot get list of users when creating account!"
+		log.Warn(s, err)
+		return s, err
 	}
 	for _, e := range *users {
 		if e.Email == strings.ToLower(u.Email) {
-			log.Warn("Email already Exist! email: ", u.Email)
+			s := "Email already Exist! email"
+			log.Warn(s, u.Email)
 			// todo: redirect with message that account was created
-			return u.Email, errors.New("Email exist")
+			return s, errors.New("Email exist")
 		}
 	}
 	err = (*a.db).SetUser(u)
 	if err != nil {
-		log.Warn("Failed to create account! email: ", u.Email)
-		return "Failed to create account", err
+		s := "Failed to create account"
+		log.Warn(s, u.Email)
+		return s, err
 	}
 	return "", nil
 }
 
+type registerForm struct {
+	Email           string `json:"email"`
+	EmailConfirm    string `json:"emailConfirm"`
+	Password        string `json:"password"`
+	PasswordConfirm string `json:"passwordConfirm"`
+}
+
 func (a *Authentication) CreateUser(c *fiber.Ctx) error {
-	var u data.User
-	c.ParamsParser(&u)
-	_, err := a.createUserMethod(&u)
-	if err != nil {
-		log.Warn("Failed to create accounnt", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+	var rf registerForm
+	err := c.BodyParser(&rf)
+
+	if len(rf.Email) == 0 {
+		s := "Email cannot be blank!"
+		c.SendStatus(fiber.StatusInternalServerError)
+		return c.Render("partials/alert", fiber.Map{
+			"alert": commons.NewAlert(s),
+		})
 	}
 
-	return nil
+	if rf.Email != rf.EmailConfirm {
+		s := "Email does not match!"
+		c.SendStatus(fiber.StatusInternalServerError)
+		return c.Render("partials/alert", fiber.Map{
+			"alert": commons.NewAlert(s),
+		})
+	}
+
+	if len(rf.Password) < 6 {
+		s := "Make a password longer than 6 characters!"
+		c.SendStatus(fiber.StatusInternalServerError)
+		return c.Render("partials/alert", fiber.Map{
+			"alert": commons.NewAlert(s),
+		})
+	}
+
+	if rf.Password != rf.PasswordConfirm {
+		s := "Password does not match!"
+		c.SendStatus(fiber.StatusInternalServerError)
+		return c.Render("partials/alert", fiber.Map{
+			"alert": commons.NewAlert(s),
+		})
+	}
+
+	var u data.User
+	c.BodyParser(&u)
+	s, err := a.createUserMethod(&u)
+	if err != nil {
+		log.Warn("Failed to create accounnt", err)
+		c.SendStatus(fiber.StatusInternalServerError)
+		return c.Render("partials/alert", fiber.Map{
+			"alert": commons.NewAlert(s),
+		})
+	}
+
+	return c.Next()
 }
 
 // triggered on email get link

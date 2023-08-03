@@ -8,6 +8,7 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/github"
 	"github.com/markbates/goth/providers/google"
+	"github.com/markbates/goth/providers/linkedin"
 	"gopkg.in/yaml.v2"
 )
 
@@ -78,5 +79,6 @@ func (s *SSOConfig) InitProviders() {
 	goth.UseProviders(
 		google.New((*s)["google"].ClientID, (*s)["google"].Secret, (*s)["google"].Callback, "email", "profile"),
 		github.New((*s)["github"].ClientID, (*s)["github"].Secret, (*s)["github"].Callback, "email"),
+		linkedin.New((*s)["linkedin"].ClientID, (*s)["linkedin"].Secret, (*s)["linkedin"].Callback),
 	)
 }

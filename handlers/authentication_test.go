@@ -25,7 +25,7 @@ func setupDB() *types.Database {
 	return &db
 }
 
-func setupPostBody(body map[string]any) *bytes.Reader {
+func setupPostBody(body any) *bytes.Reader {
 	postBody, _ := json.Marshal(body)
 	responseBody := bytes.NewReader(postBody)
 	return responseBody
@@ -147,8 +147,10 @@ func TestCreateUser(t *testing.T) {
 	app.Post("/create/account", auth.CreateUser)
 
 	postBody := setupPostBody(map[string]any{
-		"email":    "maz@bar.com",
-		"password": "faz",
+		"email":           "maz@bar.com",
+		"emailConfirm":    "maz@bar.com",
+		"password":        "mazbar",
+		"passwordConfirm": "mazbar",
 	})
 
 	newreq := httptest.NewRequest("POST", "/create/account", postBody)
@@ -160,8 +162,9 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	// m := decodeResponse(req)
-	fmt.Println(req.Body)
+	t.Log(req.Body)
 
+	t.Log((*db).ListUsers())
 }
 
 func TestEmailCreateUserLink(t *testing.T) {

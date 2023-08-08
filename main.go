@@ -37,18 +37,19 @@ func main() {
 
 	app.Get("/", auth.GetSignedToken, template.Index)
 
+	app.Get("/logout", auth.Logout)
 	app.Get("/register", auth.AuthDeny, template.Register)
 	app.Post("/register", auth.AuthDeny, template.Wait, auth.CreateUser, auth.Auth)
 	app.Get("/login", auth.AuthDeny, template.Login)
-	app.Get("/logout", auth.Logout)
 	app.Get("/partials/:partial", template.Partial)
 
 	app.Get("/login/:provider", auth.AuthDeny, goth_fiber.BeginAuthHandler)
 	app.Get("/auth/:provider/callback", auth.AuthSSO)
 	app.Post("/auth", auth.AuthDeny, template.Wait, auth.Auth)
 
-	app.Get("/restricted", auth.AuthAllow, template.Restricted)
 	app.Post("/updatepws", auth.AuthAllow, auth.GetSignedToken, template.Wait, pwstore.UpdatePw)
+	app.Get("/token", auth.AuthAllow, auth.GetSignedToken)
+	app.Post("/pw", auth.AuthAllow, pwstore.GetPW)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", *port)))
 }

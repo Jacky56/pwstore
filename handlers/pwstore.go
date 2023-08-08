@@ -32,7 +32,7 @@ func (p *PwStore) UpdatePw(c *fiber.Ctx) error {
 		return c.Redirect("/login")
 	}
 	claims := signedToken.(*jwt.Token).Claims.(jwt.MapClaims)
-	uuid, err := uuid.Parse(claims["uuid"].(string))
+	id, err := uuid.Parse(claims["uuid"].(string))
 	if err != nil {
 		log.Warn("UUID unparsable, redirect to login")
 		return c.Redirect("/login")
@@ -56,7 +56,7 @@ func (p *PwStore) UpdatePw(c *fiber.Ctx) error {
 		d[k] = v["value"][i]
 	}
 	pws := &data.PasswordStore{
-		Uuid:          uuid,
+		Uuid:          id,
 		PasswordStore: d,
 	}
 
@@ -73,4 +73,17 @@ func (p *PwStore) UpdatePw(c *fiber.Ctx) error {
 	c.Set("HX-Refresh", "true")
 
 	return c.Next()
+}
+
+func (p *PwStore) GetPW(c *fiber.Ctx) error {
+	// use jwtware locals
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id, err := uuid.Parse(claims["uuid"].(string))
+
+	pws, err := (*p.db).GetPasswordStore(id)
+	if err != nil {
+		log.Error(err)
+	}
+	return c.JSON(pws.PasswordStore)
 }

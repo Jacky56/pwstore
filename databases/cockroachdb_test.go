@@ -104,7 +104,7 @@ func TestListUsers(t *testing.T) {
 func TestSetPasswordStore(t *testing.T) {
 	db := setup("../configs/dev.yaml")
 	defer db.Close()
-	user, _ := db.GetUser("jackybanh1997@gmail.com")
+	user, _ := db.GetUser("maz@bar.com")
 
 	pws := data.PasswordStore{
 		Uuid: user.Uuid,

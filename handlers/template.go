@@ -27,32 +27,6 @@ func NewTemplate(db *types.Database, auth *Authentication) *Template {
 	}
 }
 
-func (t *Template) Main(c *fiber.Ctx) error {
-	// Render index
-	return c.Render("main", fiber.Map{
-		"Title": "Hello, World!",
-	})
-}
-
-func (t *Template) Restricted(c *fiber.Ctx) error {
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-
-	id, _ := uuid.Parse(claims["uuid"].(string))
-	u := data.User{
-		Email: claims["email"].(string),
-		Uuid:  id,
-	}
-	pws, _ := (*t.db).GetPasswordStore(u.Uuid)
-	log.Info(pws)
-	log.Info(pws.PasswordStore)
-	return c.Render("login", fiber.Map{
-		"Title": "Hello, World!",
-		"me":    u,
-		"pws":   pws.PasswordStore,
-	}, "main")
-}
-
 func (t *Template) Partial(c *fiber.Ctx) error {
 	partial := c.Params("partial")
 	err := c.Render(fmt.Sprintf("partials/%s", partial), nil)
@@ -86,7 +60,7 @@ func (t *Template) Index(c *fiber.Ctx) error {
 
 	claims := signedToken.(*jwt.Token).Claims.(jwt.MapClaims)
 
-	uuid, err := uuid.Parse(claims["uuid"].(string))
+	id, err := uuid.Parse(claims["uuid"].(string))
 	if err != nil {
 		log.Warn("UUID unparsable, redirect to login")
 		return c.Redirect("/login")
@@ -94,7 +68,7 @@ func (t *Template) Index(c *fiber.Ctx) error {
 	u := data.User{
 		Email:    claims["email"].(string),
 		Provider: claims["provider"].(string),
-		Uuid:     uuid,
+		Uuid:     id,
 	}
 	pwstore, err := (*t.db).GetPasswordStore(u.Uuid)
 	if err != nil {

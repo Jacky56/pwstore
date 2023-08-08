@@ -36,15 +36,16 @@ type Authentication struct {
 func NewAuthentication(db *types.Database) *Authentication {
 	cookieName := "pwstore-jwt"
 	localsName := "local_jwt" // c.Locals are not allowed to have -
+	signedString := []byte(fmt.Sprintf("%d", time.Now().Unix()))
 	a := Authentication{
 		db:            db,
-		signedString:  []byte("secret"),
+		signedString:  signedString,
 		expiry:        time.Now().Add(time.Minute * 30).Unix(),
 		SigningMethod: jwt.SigningMethodHS256,
 		CookieName:    cookieName,
 		LocalsName:    localsName,
 		keyFunc: func(token *jwt.Token) (any, error) {
-			return []byte("secret"), nil
+			return signedString, nil
 		},
 	}
 
